@@ -30,20 +30,35 @@ func RegisterUser(c *gin.Context) {
 }
 
 func UpdateUserData(c *gin.Context) {
+	var user models.User
 	var newUserData models.User
+	nim, err := ExtractNIM(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"meta": models.Meta{false, err.Error()}})
+		c.Abort()
+		return
+	}
 
 	if err := c.ShouldBindJSON(&newUserData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		c.Abort()
 		return
 	}
-	update := database.Db.Create(&newUserData)
+
+	record := database.Db.Preload("Major").Where("nim = ?", nim).First(&user)
+	if record.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"meta": &models.Meta{false, record.Error.Error()}})
+		c.Abort()
+		return
+	}
+
+	update := database.Db.Model(&user).Updates(newUserData)
 	if update.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": update.Error.Error()})
 		c.Abort()
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"meta": models.Meta{true, "user data successfully updated"}, "data": newUserData})
+	c.JSON(http.StatusCreated, gin.H{"meta": models.Meta{true, "user data successfully updated"}, "data": user})
 }
 
 func GetUserProfile(c *gin.Context) {

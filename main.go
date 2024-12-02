@@ -24,11 +24,12 @@ func main() {
 	api.POST("/auth/register", controllers.RegisterUser)
 	api.POST("/auth/login", controllers.GenerateToken)
 	api.POST("/mahasiswa/:nim/matakuliah/:courseId", controllers.AddCourse)
-	api.PUT("/mahasiswa/:nim/matakuliah/:courseId", controllers.RemoveCourse)
+	api.DELETE("/mahasiswa/:nim/matakuliah/:courseId", controllers.RemoveCourse)
 
 	api.GET("/majors", controllers.GetAllMajors)
 	api.GET("/mahasiswa", controllers.GetAllUsers)
 	api.GET("/mahasiswa/:nim", controllers.GetUserByNIM)
+	api.PUT("/mahasiswa/profile", controllers.UpdateUserData)
 	api.GET("/mahasiswa/profile", controllers.GetUserProfile)
 	api.GET("/matakuliah", controllers.GetAllCourses)
 
